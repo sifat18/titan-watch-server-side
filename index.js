@@ -32,6 +32,15 @@ async function run() {
             const result = await watchCollection.insertOne(data);
             res.send(result.acknowledged)
         })
+
+        // delete watch by id
+        app.delete('/watch/:id', async (req, res) => {
+            console.log('hitting watch delete')
+            const filter = req.params.id;
+            const query = { _id: ObjectID(filter) }
+            const data = await watchCollection.deleteOne(query);
+            res.send(data)
+        })
         // get watch BYid
         app.get('/watch/:id', async (req, res) => {
             console.log('connected')
