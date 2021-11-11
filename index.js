@@ -26,6 +26,12 @@ async function run() {
             const watchDataArray = await watchData.toArray()
             res.json(watchDataArray)
         })
+        // add new watch
+        app.post('/watch', async (req, res) => {
+            const data = req.body
+            const result = await watchCollection.insertOne(data);
+            res.send(result.acknowledged)
+        })
         // get watch BYid
         app.get('/watch/:id', async (req, res) => {
             console.log('connected')
@@ -40,6 +46,12 @@ async function run() {
             const reviewDataArray = await reviewData.toArray()
             res.json(reviewDataArray)
         })
+        // order gett
+        app.get('/order', async (req, res) => {
+            const result = await orderCollection.find({});
+            const orders = await result.toArray()
+            res.json(orders)
+        })
         // order post
         app.post('/order', async (req, res) => {
             // console.log("posted")
@@ -48,6 +60,29 @@ async function run() {
             // console.log(result)
             res.json(result)
         })
+        // update Order status
+        app.put('/orderUpdate/:id', async (req, res) => {
+            console.log('orderupdate put');
+            const msg = 'shipped';
+            const filter = req.params.id;
+            const query = { _id: ObjectID(filter) }
+            const data = await orderCollection.updateOne(query, {
+                $set: {
+                    orderStatus: "shipped",
+                }
+            });
+            console.log(data)
+            res.send(data)
+        })
+        // delete order by id
+        app.delete('/order/:id', async (req, res) => {
+            console.log('hitting order delete')
+            const filter = req.params.id;
+            const query = { _id: ObjectID(filter) }
+            const data = await orderCollection.deleteOne(query);
+            res.send(data)
+        })
+
         // registering users for the first time
         app.post('/user', async (req, res) => {
             const user = req.body;
