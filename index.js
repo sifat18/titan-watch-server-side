@@ -18,6 +18,7 @@ async function run() {
         const watchCollection = titanDB.collection('watches')
         const reviewCollection = titanDB.collection('reviews')
         const orderCollection = titanDB.collection('orders')
+        const userCollection = titanDB.collection('users')
 
         // get watches
         app.get('/watch', async (req, res) => {
@@ -47,6 +48,13 @@ async function run() {
             // console.log(result)
             res.json(result)
         })
+        // registering users for the first time
+        app.post('/user', async (req, res) => {
+            const user = req.body;
+            const result = await userCollection.insertOne(user);
+            console.log('success');
+            // res.json(result);
+        });
     } finally {
         // client.close()
     }
