@@ -55,6 +55,14 @@ async function run() {
             const reviewDataArray = await reviewData.toArray()
             res.json(reviewDataArray)
         })
+        // post reviews
+        app.post('/reviews', async (req, res) => {
+            console.log('hitting reviews');
+            const query = req.body;
+
+            const cursor = await reviewCollection.insertOne(query)
+            res.json(cursor)
+        })
         // order gett
         app.get('/order', async (req, res) => {
             const result = await orderCollection.find({});
@@ -92,12 +100,33 @@ async function run() {
             res.send(data)
         })
 
+        // get order by emails
+        app.get('/order/:mail', async (req, res) => {
+            const filter = req.params.mail;
+            const query = { email: filter }
+            const data = await orderCollection.find(query).toArray();
+            res.send(data)
+        })
+
         // registering users for the first time
         app.post('/user', async (req, res) => {
             const user = req.body;
             const result = await userCollection.insertOne(user);
             console.log('success');
             // res.json(result);
+        });
+        //checking admin or not
+        app.get('/user/:email', async (req, res) => {
+            console.log('hitting admin check')
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await userCollection.findOne(query);
+            let Isadmin = false;
+            if (result?.role == 'admin') {
+                Isadmin = true
+            }
+            console.log('success');
+            res.json({ admin: Isadmin });
         });
         app.put('/user', async (req, res) => {
             const user = req.body;
