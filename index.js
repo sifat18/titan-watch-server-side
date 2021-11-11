@@ -4,6 +4,7 @@ const app = express()
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
 const ObjectID = require('mongodb').ObjectId;
+const port = process.env.PORT || 7000
 
 app.use(cors());
 app.use(express.json())
@@ -150,7 +151,6 @@ async function run() {
     }
 }
 run().catch(console.dir)
-const port = process.env.PORT || 7000
 app.get('/', (req, res) => {
     res.send('connected')
 })
