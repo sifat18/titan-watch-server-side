@@ -64,6 +64,14 @@ async function run() {
             // res.json(result);
             console.log('success put')
         });
+        app.put('/admin/:email', async (req, res) => {
+            const user = req.params.email;
+            const cursor = { email: user };
+            const updateDoc = { $set: { role: 'admin' } };
+            const result = await userCollection.updateOne(cursor, updateDoc);
+            console.log('success admin put', result)
+            res.json(result)
+        });
     } finally {
         // client.close()
     }
