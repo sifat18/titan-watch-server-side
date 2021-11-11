@@ -55,6 +55,15 @@ async function run() {
             console.log('success');
             // res.json(result);
         });
+        app.put('/user', async (req, res) => {
+            const user = req.body;
+            const cursor = { email: user.email };
+            const option = { upsert: true };
+            const updateDoc = { $set: user };
+            const result = await userCollection.updateOne(cursor, updateDoc, option);
+            // res.json(result);
+            console.log('success put')
+        });
     } finally {
         // client.close()
     }
