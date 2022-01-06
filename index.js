@@ -6,11 +6,36 @@ const { MongoClient } = require('mongodb');
 const ObjectID = require('mongodb').ObjectId;
 const port = process.env.PORT || 7000
 
+const admin = require("firebase-admin");
+
+const serviceAccount = require("./titan-front-firebase-adminsdk-cxb4o-4e5743f477.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
+// 
 app.use(cors());
 app.use(express.json())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.nryb4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+async function verifyToken(req, res, next) {
+    if (req.headers?.authorization?.startsWith('Bearer ')) {
+        const token = req.headers.authorization.split(' ')[1];
+
+        try {
+            const decodedUser = await admin.auth().verifyIdToken(token);
+            req.decodedEmail = decodedUser.email;
+        }
+        catch {
+
+        }
+
+    }
+    next();
+}
 
 async function run() {
     try {
@@ -138,13 +163,29 @@ async function run() {
             // res.json(result);
             console.log('success put')
         });
-        app.put('/admin/:email', async (req, res) => {
-            const user = req.params.email;
-            const cursor = { email: user };
-            const updateDoc = { $set: { role: 'admin' } };
-            const result = await userCollection.updateOne(cursor, updateDoc);
-            console.log('success admin put', result)
-            res.json(result)
+        app.put('/admin/email', verifyToken, async (req, res) => {
+
+            const user = req.body;
+            const requester = req.decodedEmail;
+            if (requester) {
+                const requesterAccount = await userCollection.findOne({ email: requester });
+                if (requesterAccount.role === 'admin') {
+                    const filter = { email: user.email };
+                    const updateDoc = { $set: { role: 'admin' } };
+                    const result = await userCollection.updateOne(filter, updateDoc);
+                    res.json(result);
+                }
+            }
+            else {
+                res.status(403).json({ message: 'you do not have access to make admin' })
+            }
+
+            // const user = req.params.email;
+            // const cursor = { email: user };
+            // const updateDoc = { $set: { role: 'admin' } };
+            // const result = await userCollection.updateOne(cursor, updateDoc);
+            // console.log('success admin put', result)
+            // res.json(result)
         });
     } finally {
         // client.close()
