@@ -8,7 +8,7 @@ const port = process.env.PORT || 7000
 
 const admin = require("firebase-admin");
 
-const serviceAccount = require("./titan-front-firebase-adminsdk-cxb4o-4e5743f477.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -180,12 +180,6 @@ async function run() {
                 res.status(403).json({ message: 'you do not have access to make admin' })
             }
 
-            // const user = req.params.email;
-            // const cursor = { email: user };
-            // const updateDoc = { $set: { role: 'admin' } };
-            // const result = await userCollection.updateOne(cursor, updateDoc);
-            // console.log('success admin put', result)
-            // res.json(result)
         });
     } finally {
         // client.close()
