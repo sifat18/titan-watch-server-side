@@ -6,6 +6,7 @@ const { MongoClient } = require('mongodb');
 const ObjectID = require('mongodb').ObjectId;
 const port = process.env.PORT || 7000
 
+const stripe = require('stripe')(process.env.STRIPE_SECRECT)
 const admin = require("firebase-admin");
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -95,6 +96,28 @@ async function run() {
             const orders = await result.toArray()
             res.json(orders)
         })
+        // order gett By id
+        app.get('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectID(id) };
+            const result = await orderCollection.findOne(query);
+            res.json(result)
+        })
+
+        // payment update
+        app.put('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectID(id) };
+            const updateDoc = {
+                $set: {
+                    payment: payment
+                }
+            };
+            const result = await orderCollection.updateOne(filter, updateDoc);
+            res.json(result);
+        })
+
         // order post
         app.post('/order', async (req, res) => {
             // console.log("posted")
@@ -181,6 +204,21 @@ async function run() {
             }
 
         });
+
+        // payment
+        app.post('/create-payment-intent', async (req, res) => {
+            const paymentInfo = req.body;
+            const amount = parseInt(paymentInfo.price) * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                currency: 'usd',
+                amount: amount,
+                payment_method_types: ['card']
+            });
+            res.json({ clientSecret: paymentIntent.client_secret })
+        })
+
+
+
     } finally {
         // client.close()
     }
