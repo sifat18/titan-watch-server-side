@@ -126,14 +126,6 @@ async function run() {
             // console.log(result)
             res.json(result)
         })
-
-        // get order by emails
-        app.get('/order/:mail', async (req, res) => {
-            const filter = req.params.mail;
-            const query = { email: filter }
-            const data = await orderCollection.find(query).toArray();
-            res.json(data)
-        })
         // update Order status
         app.put('/orderUpdate/:id', async (req, res) => {
             console.log('orderupdate put');
@@ -157,7 +149,13 @@ async function run() {
             res.send(data)
         })
 
-
+        // get order by emails
+        app.get('/getmail/:mail', async (req, res) => {
+            const filter = req.params.mail;
+            const query = { email: filter }
+            const data = await orderCollection.find(query).toArray();
+            res.send(data)
+        })
 
         // registering users for the first time
         app.post('/user', async (req, res) => {
