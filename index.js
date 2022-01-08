@@ -132,7 +132,7 @@ async function run() {
             const filter = req.params.mail;
             const query = { email: filter }
             const data = await orderCollection.find(query).toArray();
-            res.send(data)
+            res.json(data)
         })
         // update Order status
         app.put('/orderUpdate/:id', async (req, res) => {
